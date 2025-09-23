@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile with Feed</title>
+    <style>
+        *,
+        *:before,
+        *:after {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #080710;
+            font-family: 'Poppins', sans-serif;
+            padding-top: 80px; /* THÊM DÒNG NÀY nếu cần */
+        }
+
+        .profile-container {
+            flex: 1;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.13);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+            padding: 40px 30px;
+            color: #fff;
+            /* SỬA ĐOẠN NÀY */
+            margin: 0;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .username {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .post-form {
+            margin-bottom: 30px;
+        }
+
+        .post-actions button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #ff512f;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .post-form input,
+        .post-form textarea,
+        .post-form select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: rgba(255, 255, 255, 0.07);
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .post-form textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        .post-form button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #ff512f;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .post-form button:hover {
+            background-color: #f09819;
+        }
+
+        .post-list .post {
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .post-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .post-meta {
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .post-content {
+            font-size: 15px;
+            color: #e5e5e5;
+        }
+
+        .main-container {
+            /*margin-top: 100px;*/
+            display: flex;
+            justify-content: center;
+            /*align-items: flex-start;*/
+            gap: 30px;
+            padding: 40px;
+            align-items: stretch;
+        }
+
+        .follow-list-container {
+            width: 300px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.13);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+            padding: 30px;
+            color: #fff;
+        }
+
+        .follow-list-container h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .follow-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .follow-username {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .follow-user button {
+            padding: 6px 12px;
+            background-color: #ff512f;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .follow-user button:hover {
+            background-color: #f09819;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .logout-btn {
+            background-color: #ff4d4d;
+            border: none;
+            padding: 10px 16px;
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .btn-action {
+            padding: 6px 14px;
+            background-color: #ff512f;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background-color: #f09819;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-left">
+        <h1>Mini Social</h1>
+    </div>
+    <div class="header-right">
+        <form th:action="@{/logout}" method="get">
+            <button type="submit" class="logout-btn">Đăng xuất</button>
+        </form>
+    </div>
+</header>
+
+<div class="main-container">
+    <div class="profile-container">
+        <div class="profile-header">
+            <img src="https://i.pravatar.cc/100?i" alt="Avatar" class="avatar">
+            <div class="username">Welcome, <span th:text="${user.username}"></span>!</div>
+        </div>
+
+        <!-- Form tạo bài viết -->
+        <form class="post-form" th:action="@{/post}" method="post" th:object="${post}">
+            <input type="text" th:field="*{title}" placeholder="Post title" required>
+            <textarea th:field="*{body}" placeholder="What's on your mind?" required></textarea>
+            <select th:field="*{status}">
+                <option value="Public" style="color: black;">Public</option>
+                <option value="Private" style="color: black;">Private</option>
+            </select>
+
+            <br/>
+
+            <button type="submit" style="margin-top: 60px;">Post</button>
+        </form>
+
+        <!-- Danh sách bài viết -->
+        <div class="post-list">
+
+            <div class="post" th:each="p : ${posts}">
+                <div class="post-title" th:text="${p.title}">Sample Title</div>
+
+                <div class="post-meta">
+                    Người đăng: <span th:text="${p.user.username}">Tên người dùng</span> |
+                    Status: <span th:text="${p.status}">Public</span> |
+                    Created at: <span th:text="${#dates.format(p.createdAt, 'dd/MM/yyyy HH:mm')}">29/07/2025 22:45</span>
+                </div>
+
+                <div class="post-content" th:text="${p.body}">Post content here...</div>
+
+<!--                &lt;!&ndash; Like &ndash;&gt;-->
+<!--                <form th:action="@{'/post/like/' + ${p.id}}" method="post" style="display:inline;">-->
+<!--                    <button type="submit" class="btn btn-outline-primary btn-sm">👍 Thích (<span th:text="${p.likes}">0</span>)</button>-->
+<!--                </form>-->
+
+<!--                &lt;!&ndash; Nút Xóa: chỉ hiện nếu là chủ bài viết &ndash;&gt;-->
+<!--                <div class="post-actions" style="margin-top: 10px;" th:if="${p.user.id == session.user.id}">-->
+<!--                    <a th:href="@{'/post/delete/' + ${p.id}}"-->
+<!--                       onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');"-->
+<!--                       class="btn btn-danger btn-sm">-->
+<!--                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>-->
+<!--                    </a>-->
+<!--                </div>-->
+                <!-- Like & Delete Buttons -->
+                <div class="post-actions" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <!-- Like button -->
+                    <form th:action="@{'/post/like/' + ${p.id}}" method="post">
+                        <button type="submit" class="btn-action">👍 Thích (<span th:text="${p.likes}">0</span>)</button>
+                    </form>
+
+                    <!-- Delete button (only if owner) -->
+                    <form th:action="@{'/post/delete/' + ${p.id}}" method="get"
+                          th:if="${p.user.id == session.user.id}"
+                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                        <button type="submit" class="btn-action delete-btn">🗑️ Xóa</button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Cột bên phải: Danh sách người dùng để follow -->
+    <div class="follow-list-container">
+        <h3>Người dùng bạn có thể follow</h3>
+        <div class="follow-list">
+            <div class="follow-user" th:each="u : ${usersToFollow}">
+                <span class="follow-username" th:text="${u.username}">Tên người dùng</span>
+                <form th:action="@{/follow}" method="post">
+                    <input type="hidden" name="followedId" th:value="${u.id}" />
+                    <button type="submit">Follow</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
